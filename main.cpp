@@ -105,6 +105,21 @@ class Game {
         Snake snake = Snake();
         Food food = Food(snake.body);
         bool running = true;
+        int score  = 0;
+        Sound eatSound;
+        Sound wallSound;
+
+        Game(){
+            InitAudioDevice();
+            eatSound = LoadSound("../Sounds/eat.mp3");
+            wallSound = LoadSound("../Sounds/wall.mp3");
+        }
+
+        ~Game(){
+            UnloadSound(eatSound);
+            UnloadSound(wallSound);
+            CloseAudioDevice();
+        }
 
         void Draw(){
 
@@ -144,6 +159,8 @@ class Game {
             if(Vector2Equals(snake.body[0], food.position)){
                 food.position = food.generateRandomPos(snake.body);
                 snake.addSegment = true;
+                score++;
+                PlaySound(eatSound);
             }
         }
 
@@ -161,6 +178,8 @@ class Game {
             snake.Reset();
             food.position = food.generateRandomPos(snake.body);
             running = false;
+            score = 0;
+            PlaySound(wallSound);
         }
 
         void CheckCollisionWithTail(){
@@ -186,6 +205,9 @@ int main(){
         ClearBackground(green);
         
         DrawRectangleLinesEx(Rectangle{(float)offset - 5,(float)offset - 5, (float)cellSize* cellCount + 10, (float)cellSize* cellCount + 10}, 5, darkGreen);
+        DrawText("Retro Snake", offset - 5, 20, 40, darkGreen);
+        DrawText(TextFormat("%i",game.score), offset - 5, offset + cellSize*cellCount+10, 40, darkGreen);
+
         game.Draw();
 
         EndDrawing();
